@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
-import { checkConnection } from './config/database.js';
+import { supabase, checkConnection } from './config/database.js';
 import { error } from './shared/utils/response.js';
 
 import authRoutes from './modules/auth/auth.routes.js';
@@ -27,29 +27,8 @@ app.use(morgan('dev'));
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use('/api/', limiter);
 
-app.get('/api/v1/health', async (req, res) => {
-  let dbStatus = 'untested';
-  try {
-    const { error } = await supabase.from('tenants').select('id', { count: 'exact', head: true });
-    dbStatus = error ? `error: ${error.message}` : 'connected';
-  } catch (e) {
-    dbStatus = `error: ${e.message}`;
-  }
-  res.json({ status: 'ok', version: '2.0.0', db: dbStatus, timestamp: new Date().toISOString() });
-});
-
-app.get('/api/v1/debug', async (req, res) => {
-  const result = { keys: {}, db: {} };
-  result.keys.supabaseUrl = process.env.SUPABASE_URL ? 'set' : 'missing';
-  result.keys.supabaseKey = process.env.SUPABASE_ANON_KEY ? 'set' : 'missing';
-  result.keys.jwtSecret = process.env.JWT_SECRET ? 'set' : 'missing';
-  try {
-    const { data, error } = await supabase.from('users').select('email').eq('email', 'admin@yamiops.com');
-    result.db.findUser = error ? `error: ${error.message}` : `found: ${data?.length || 0}`;
-  } catch (e) {
-    result.db.findUser = `error: ${e.message}`;
-  }
-  res.json(result);
+app.get('/api/v1/health', (req, res) => {
+  res.json({ status: 'ok', version: '2.0.0', timestamp: new Date().toISOString() });
 });
 
 app.use('/api/v1/auth', authRoutes);
