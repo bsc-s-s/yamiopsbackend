@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: yami-ops-backend
+    env: node
+    region: frankfurt
+    buildCommand: npm install
+    startCommand: node server.js
+    rootDir: backend
+    envVars:
+      - key: SUPABASE_URL
+        value: https://nkqgfqykrtsuwhsnvlpr.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: PORT
+        value: 3001
+
+  - type: web
+    name: yami-ops-frontend
+    env: static
+    region: frankfurt
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    rootDir: frontend
+    envVars:
+      - key: VITE_API_URL
+        value: https://yami-ops-backend.onrender.com/api
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

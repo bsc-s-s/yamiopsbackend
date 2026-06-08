@@ -6,7 +6,7 @@ import {
   Sun, Coffee, Moon, Plus, Trash2, CheckCircle, Clock, Phone, Mail, Users
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // ====== COMPONENTE DE CARGA ======
 const Cargando = () => (
