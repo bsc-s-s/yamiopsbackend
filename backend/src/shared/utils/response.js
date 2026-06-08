@@ -13,7 +13,7 @@ export function paginated(res, data, total, page, limit) {
 export function error(res, err) {
   const statusCode = err.statusCode || 500;
   const code = err.code || 'INTERNAL_ERROR';
-  const message = err.isOperational ? err.message : 'Error interno del servidor';
+  const message = err.isOperational ? err.message : `[${err.constructor?.name}] ${err.message}`;
   if (!err.isOperational) {
     console.error('ERROR:', err);
   }

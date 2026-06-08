@@ -41,7 +41,7 @@ export default function LoginPage() {
               type="email" value={email} onChange={e => setEmail(e.target.value)}
               placeholder="admin@yamiops.com"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-              autoFocus
+              autoFocus autoComplete="email"
             />
           </div>
           <div>
@@ -52,6 +52,7 @@ export default function LoginPage() {
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm pr-10"
+                autoComplete="current-password"
               />
               <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
                 {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
