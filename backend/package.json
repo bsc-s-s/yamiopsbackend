@@ -1,24 +1,26 @@
 {
   "name": "yami-ops-backend",
-  "version": "1.0.0",
-  "description": "Backend para YAMI OPS",
+  "version": "2.0.0",
+  "description": "YAMI OPS SaaS - Backend Multi-tenant",
   "type": "module",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "init-db": "node scripts/initDatabase.js"
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "init-db": "node scripts/initDatabase.js",
+    "seed": "node scripts/seedSaas.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
     "@supabase/supabase-js": "^2.39.0",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "helmet": "^7.1.0",
-    "morgan": "^1.10.0"
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.21.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

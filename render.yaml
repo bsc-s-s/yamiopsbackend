@@ -4,7 +4,7 @@ services:
     env: node
     region: frankfurt
     buildCommand: npm install
-    startCommand: node server.js
+    startCommand: node src/server.js
     rootDir: backend
     envVars:
       - key: SUPABASE_URL
@@ -13,6 +13,10 @@ services:
         sync: false
       - key: PORT
         value: 3001
+      - key: JWT_SECRET
+        sync: false
+      - key: NODE_ENV
+        value: production
 
   - type: web
     name: yami-ops-frontend
@@ -23,7 +27,7 @@ services:
     rootDir: frontend
     envVars:
       - key: VITE_API_URL
-        value: https://yami-ops-backend.onrender.com/api
+        value: https://yami-ops-backend.onrender.com/api/v1
     routes:
       - type: rewrite
         source: /*
