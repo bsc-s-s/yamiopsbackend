@@ -13,7 +13,7 @@ api.interceptors.request.use(config => {
 });
 
 api.interceptors.response.use(
-  res => res,
+  res => { res.data = res.data?.data ?? res.data; return res; },
   err => {
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
