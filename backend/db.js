@@ -1,83 +1,21 @@
-import initSqlJs from 'sql.js';
-import fs from 'fs';
-import path from 'path';
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const DB_PATH = 'yamiops.db';
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-let db = null;
-
-class Statement {
-  constructor(sql) {
-    this.sql = sql;
-    this.stmt = null;
-    this.params = [];
-  }
-
-  bind(params) {
-    this.params = params;
-    return this;
-  }
-
-  all() {
-    this.stmt = db.prepare(this.sql);
-    if (this.params.length > 0) this.stmt.bind(this.params);
-    const rows = [];
-    while (this.stmt.step()) {
-      rows.push(this.stmt.getAsObject());
-    }
-    this.stmt.free();
-    return rows;
-  }
-
-  get(params) {
-    this.stmt = db.prepare(this.sql);
-    if (params) this.stmt.bind(params);
-    if (this.stmt.step()) {
-      const row = this.stmt.getAsObject();
-      this.stmt.free();
-      return row;
-    }
-    this.stmt.free();
-    return undefined;
-  }
-
-  run(params) {
-    this.stmt = db.prepare(this.sql);
-    if (params) this.stmt.bind(params);
-    this.stmt.step();
-    this.stmt.free();
-    return { lastInsertRowid: 0, changes: 1 };
-  }
-}
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function initDB() {
-  const SQL = await initSqlJs();
-  if (fs.existsSync(DB_PATH)) {
-    const buffer = fs.readFileSync(DB_PATH);
-    db = new SQL.Database(buffer);
-  } else {
-    db = new SQL.Database();
-  }
-  return db;
-}
-
-export function saveDB() {
-  if (db) {
-    const data = db.export();
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(DB_PATH, buffer);
+  const { data, error } = await supabase.from('habitaciones_1600').select('id', { count: 'exact', head: true });
+  if (error && error.code === '42P01') {
+    console.log('⚠️ Tablas no existen. Creando esquema...');
+  } else if (!error) {
+    console.log('✅ Conectado a Supabase');
   }
 }
 
-export function exec(sql) {
-  db.run(sql);
-  saveDB();
-}
-
-export function prepare(sql) {
-  return new Statement(sql);
-}
-
-export function getDB() {
-  return db;
+export function initSchema() {
+  console.log('📋 Para crear las tablas, pega database/schema.sql en Supabase SQL Editor y haz clic en RUN');
 }
