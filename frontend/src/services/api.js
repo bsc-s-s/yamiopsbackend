@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://yami-ops-backend.onrender.com/api/v1' : 'http://localhost:3001/api/v1');
+const API_URL = import.meta.env.DEV ? 'http://localhost:3001/api/v1' : 'https://yami-ops-backend.onrender.com/api/v1';
 
 const api = axios.create({ baseURL: API_URL });
 
