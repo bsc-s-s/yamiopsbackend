@@ -1,0 +1,6 @@
+node_modules/
+yamiops.db
+.env
+dist/
+.DS_Store
+*.log
