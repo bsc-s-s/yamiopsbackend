@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(helmet());
 app.use(cors());
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -23,9 +24,10 @@ const hoy = () => new Date().toISOString().split('T')[0];
 
 // ===== SEED DATA =====
 async function seedData() {
-  const { count } = await supabase.from('habitaciones_1600').select('*', { count: 'exact', head: true });
-  if (count === 0) {
-    const h1600 = [
+  const { count, error } = await supabase.from('habitaciones_1600').select('*', { count: 'exact', head: true });
+  console.log(`📊 Seed check: count=${count}, error=${error?.message || 'none'}`);
+  if (error || !count || count === 0) {
+    await supabase.from('habitaciones_1600').insert([
       { numero: '101', tipo: 'compartida', capacidad: 6 },
       { numero: '102', tipo: 'compartida', capacidad: 6 },
       { numero: '103', tipo: 'compartida', capacidad: 6 },
@@ -37,13 +39,10 @@ async function seedData() {
       { numero: '109', tipo: 'privada', capacidad: 2 },
       { numero: '110', tipo: 'privada', capacidad: 2 },
       { numero: '111', tipo: 'privada', capacidad: 2 }
-    ];
-    await supabase.from('habitaciones_1600').insert(h1600);
-
+    ]);
     const h2000 = [];
     for (let i = 201; i <= 208; i++) h2000.push({ numero: String(i) });
     await supabase.from('habitaciones_2000').insert(h2000);
-
     await supabase.from('incidencias').insert([
       { titulo: 'Ducha sin agua caliente', descripcion: 'Hab 103 no sale agua caliente', criticidad: 'importante' },
       { titulo: 'Bombilla fundida', descripcion: 'Pasillo principal', criticidad: 'menor' },
@@ -51,7 +50,6 @@ async function seedData() {
       { titulo: 'WiFi intermitente', descripcion: 'Varios huéspedes reportan caídas', criticidad: 'normal' },
       { titulo: 'Puerta 208 no cierra', descripcion: 'Cerradura desajustada', criticidad: 'normal' }
     ]);
-
     await supabase.from('movimientos_economicos').insert([
       { tipo: 'ingreso', concepto: 'Reserva 101 - 3 noches', categoria: 'alojamiento', monto: 150, metodo_pago: 'efectivo' },
       { tipo: 'ingreso', concepto: 'Reserva 102 - 2 noches', categoria: 'alojamiento', monto: 100, metodo_pago: 'tarjeta' },
@@ -61,14 +59,10 @@ async function seedData() {
       { tipo: 'ingreso', concepto: 'Reserva 205 - 5 noches', categoria: 'alojamiento', monto: 350, metodo_pago: 'tarjeta' },
       { tipo: 'gasto', concepto: 'Productos limpieza', categoria: 'suministros', monto: 45.30, metodo_pago: 'efectivo' }
     ]);
-
     await supabase.from('menus_diarios').insert([{
-      fecha: hoy(),
-      desayuno: 'Café, leche, tostadas, cereales',
-      comida: 'Lentejas estofadas + Pollo asado',
-      cena: 'Sopa de verduras + Tortilla'
+      fecha: hoy(), desayuno: 'Café, leche, tostadas, cereales',
+      comida: 'Lentejas estofadas + Pollo asado', cena: 'Sopa de verduras + Tortilla'
     }]);
-
     console.log('✅ Datos iniciales insertados');
   }
 }
