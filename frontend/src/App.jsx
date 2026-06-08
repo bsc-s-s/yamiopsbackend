@@ -58,6 +58,21 @@ const Modal = ({ abierto, titulo, onClose, children }) => {
 const Dashboard = ({ onNavigate }) => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
+  const [cargandoSeed, setCargandoSeed] = useState(false);
+  const [mensajeSeed, setMensajeSeed] = useState('');
+
+  const cargarDatos = async () => {
+    setCargandoSeed(true);
+    setMensajeSeed('');
+    try {
+      const r = await axios.post(`${API_URL}/seed`);
+      setMensajeSeed(r.data.mensaje || '✅ Datos cargados');
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (e) {
+      setMensajeSeed('❌ Error: ' + (e.response?.data?.mensaje || e.message));
+    }
+    setCargandoSeed(false);
+  };
 
   useEffect(() => {
     axios.get(`${API_URL}/dashboard/resumen`)
@@ -86,6 +101,19 @@ const Dashboard = ({ onNavigate }) => {
         </div>
         {error && <div className="mt-3 bg-red-500/30 text-center p-2 rounded-lg text-sm">⚠️ Error al conectar con el servidor</div>}
       </div>
+
+      {data && data.habitaciones.total === 0 && (
+        <div className="px-4 -mt-4 mb-4">
+          <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-xl p-4 text-center">
+            <p className="text-amber-800 dark:text-amber-200 text-sm font-medium mb-2">📦 Base de datos vacía</p>
+            <button onClick={cargarDatos} disabled={cargandoSeed}
+              className="bg-amber-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-amber-700 disabled:opacity-50">
+              {cargandoSeed ? 'Cargando...' : 'Cargar datos de ejemplo'}
+            </button>
+            {mensajeSeed && <p className="text-xs mt-2 text-amber-700 dark:text-amber-300">{mensajeSeed}</p>}
+          </div>
+        </div>
+      )}
 
       {data && (
         <div className="px-4 -mt-4">

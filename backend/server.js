@@ -24,53 +24,67 @@ const hoy = () => new Date().toISOString().split('T')[0];
 
 // ===== SEED DATA =====
 async function seedData() {
-  const { count, error } = await supabase.from('habitaciones_1600').select('*', { count: 'exact', head: true });
-  console.log(`📊 Seed check: count=${count}, error=${error?.message || 'none'}`);
-  if (error || !count || count === 0) {
-    await supabase.from('habitaciones_1600').insert([
-      { numero: '101', tipo: 'compartida', capacidad: 6 },
-      { numero: '102', tipo: 'compartida', capacidad: 6 },
-      { numero: '103', tipo: 'compartida', capacidad: 6 },
-      { numero: '104', tipo: 'compartida', capacidad: 6 },
-      { numero: '105', tipo: 'compartida', capacidad: 4 },
-      { numero: '106', tipo: 'privada', capacidad: 2 },
-      { numero: '107', tipo: 'privada', capacidad: 2 },
-      { numero: '108', tipo: 'privada', capacidad: 2 },
-      { numero: '109', tipo: 'privada', capacidad: 2 },
-      { numero: '110', tipo: 'privada', capacidad: 2 },
-      { numero: '111', tipo: 'privada', capacidad: 2 }
-    ]);
-    const h2000 = [];
-    for (let i = 201; i <= 208; i++) h2000.push({ numero: String(i) });
-    await supabase.from('habitaciones_2000').insert(h2000);
-    await supabase.from('incidencias').insert([
-      { titulo: 'Ducha sin agua caliente', descripcion: 'Hab 103 no sale agua caliente', criticidad: 'importante' },
-      { titulo: 'Bombilla fundida', descripcion: 'Pasillo principal', criticidad: 'menor' },
-      { titulo: 'Calefacción no funciona', descripcion: 'Caldera ala este no enciende', criticidad: 'critica' },
-      { titulo: 'WiFi intermitente', descripcion: 'Varios huéspedes reportan caídas', criticidad: 'normal' },
-      { titulo: 'Puerta 208 no cierra', descripcion: 'Cerradura desajustada', criticidad: 'normal' }
-    ]);
-    await supabase.from('movimientos_economicos').insert([
-      { tipo: 'ingreso', concepto: 'Reserva 101 - 3 noches', categoria: 'alojamiento', monto: 150, metodo_pago: 'efectivo' },
-      { tipo: 'ingreso', concepto: 'Reserva 102 - 2 noches', categoria: 'alojamiento', monto: 100, metodo_pago: 'tarjeta' },
-      { tipo: 'gasto', concepto: 'Compra alimentos', categoria: 'restauracion', monto: 85.50, metodo_pago: 'efectivo' },
-      { tipo: 'ingreso', concepto: 'Cena grupo 8 pax', categoria: 'restauracion', monto: 120, metodo_pago: 'transferencia' },
-      { tipo: 'gasto', concepto: 'Mantenimiento caldera', categoria: 'servicios', monto: 200, metodo_pago: 'transferencia' },
-      { tipo: 'ingreso', concepto: 'Reserva 205 - 5 noches', categoria: 'alojamiento', monto: 350, metodo_pago: 'tarjeta' },
-      { tipo: 'gasto', concepto: 'Productos limpieza', categoria: 'suministros', monto: 45.30, metodo_pago: 'efectivo' }
-    ]);
-    await supabase.from('menus_diarios').insert([{
-      fecha: hoy(), desayuno: 'Café, leche, tostadas, cereales',
-      comida: 'Lentejas estofadas + Pollo asado', cena: 'Sopa de verduras + Tortilla'
-    }]);
-    console.log('✅ Datos iniciales insertados');
+  const { error } = await supabase.from('habitaciones_1600').insert([
+    { numero: '101', tipo: 'compartida', capacidad: 6 },
+    { numero: '102', tipo: 'compartida', capacidad: 6 },
+    { numero: '103', tipo: 'compartida', capacidad: 6 },
+    { numero: '104', tipo: 'compartida', capacidad: 6 },
+    { numero: '105', tipo: 'compartida', capacidad: 4 },
+    { numero: '106', tipo: 'privada', capacidad: 2 },
+    { numero: '107', tipo: 'privada', capacidad: 2 },
+    { numero: '108', tipo: 'privada', capacidad: 2 },
+    { numero: '109', tipo: 'privada', capacidad: 2 },
+    { numero: '110', tipo: 'privada', capacidad: 2 },
+    { numero: '111', tipo: 'privada', capacidad: 2 }
+  ]);
+  if (error && error.code === '23505') {
+    console.log('⚠️ Seed saltado (datos ya existen)');
+    return;
   }
+  const h2000 = [];
+  for (let i = 201; i <= 208; i++) h2000.push({ numero: String(i) });
+  await supabase.from('habitaciones_2000').insert(h2000);
+  await supabase.from('incidencias').insert([
+    { titulo: 'Ducha sin agua caliente', descripcion: 'Hab 103 no sale agua caliente', criticidad: 'importante' },
+    { titulo: 'Bombilla fundida', descripcion: 'Pasillo principal', criticidad: 'menor' },
+    { titulo: 'Calefacción no funciona', descripcion: 'Caldera ala este no enciende', criticidad: 'critica' },
+    { titulo: 'WiFi intermitente', descripcion: 'Varios huéspedes reportan caídas', criticidad: 'normal' },
+    { titulo: 'Puerta 208 no cierra', descripcion: 'Cerradura desajustada', criticidad: 'normal' }
+  ]);
+  await supabase.from('movimientos_economicos').insert([
+    { tipo: 'ingreso', concepto: 'Reserva 101 - 3 noches', categoria: 'alojamiento', monto: 150, metodo_pago: 'efectivo' },
+    { tipo: 'ingreso', concepto: 'Reserva 102 - 2 noches', categoria: 'alojamiento', monto: 100, metodo_pago: 'tarjeta' },
+    { tipo: 'gasto', concepto: 'Compra alimentos', categoria: 'restauracion', monto: 85.50, metodo_pago: 'efectivo' },
+    { tipo: 'ingreso', concepto: 'Cena grupo 8 pax', categoria: 'restauracion', monto: 120, metodo_pago: 'transferencia' },
+    { tipo: 'gasto', concepto: 'Mantenimiento caldera', categoria: 'servicios', monto: 200, metodo_pago: 'transferencia' },
+    { tipo: 'ingreso', concepto: 'Reserva 205 - 5 noches', categoria: 'alojamiento', monto: 350, metodo_pago: 'tarjeta' },
+    { tipo: 'gasto', concepto: 'Productos limpieza', categoria: 'suministros', monto: 45.30, metodo_pago: 'efectivo' }
+  ]);
+  await supabase.from('menus_diarios').insert([{
+    fecha: hoy(), desayuno: 'Café, leche, tostadas, cereales',
+    comida: 'Lentejas estofadas + Pollo asado', cena: 'Sopa de verduras + Tortilla'
+  }]);
+  console.log('✅ Datos iniciales insertados');
 }
+
+// ===== ENDPOINT MANUAL PARA CARGAR DATOS =====
+app.post('/api/seed', async (req, res) => {
+  try {
+    await seedData();
+    res.json({ success: true, mensaje: 'Datos de ejemplo cargados correctamente' });
+  } catch (e) {
+    res.status(500).json({ success: false, mensaje: e.message });
+  }
+});
 
 app.listen(PORT, async () => {
   await initDB();
   initSchema();
-  await seedData();
+  try {
+    await seedData();
+  } catch (e) {
+    console.log('⚠️ Seed inicial: ' + e.message);
+  }
   console.log(`✅ YAMI OPS Backend en http://localhost:${PORT}`);
 });
 
